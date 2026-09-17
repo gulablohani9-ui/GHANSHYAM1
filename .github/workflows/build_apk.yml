@@ -1,0 +1,55 @@
+
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.5"
+          channel: stable
+          cache: true
+
+      - name: Generate Android project files
+        run: |
+          flutter create . --platforms=android --project-name vastu_simple_chakra --org com.graphicpoint
+
+      - name: Set compile SDK
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/app/build.gradle")
+          if p.exists():
+              s = p.read_text()
+              s = s.replace("compileSdk = flutter.compileSdkVersion", "compileSdk = 35")
+              s = s.replace("compileSdk flutter.compileSdkVersion", "compileSdk 35")
+              p.write_text(s)
+          PY
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vastu-simple-chakra-apk
+          path: build/app/outputs/flutter-apk/app-release.apk

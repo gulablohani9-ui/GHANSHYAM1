@@ -1,16 +1,23 @@
-name: vastu_plot_chakra_overlay
-description: Plot photo with editable boundary and rotatable chakra overlay.
+name: vastu_plot_chakra_pdf
+description: Plot photo with editable boundary, chakra folder overlay and PDF report.
 publish_to: "none"
 version: 1.0.0+1
+
 environment:
   sdk: ">=3.3.0 <4.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
   image_picker: ^1.1.2
+  file_picker: ^8.1.2
+  pdf: ^3.11.1
+  path: ^1.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+
 flutter:
   uses-material-design: true

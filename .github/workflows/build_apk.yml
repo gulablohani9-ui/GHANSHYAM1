@@ -12,8 +12,8 @@ jobs:
         with: {distribution: temurin, java-version: "17"}
       - uses: subosito/flutter-action@v2
         with: {flutter-version: "3.24.5", channel: stable, cache: true}
-      - run: flutter create . --platforms=android --project-name vastu_plot_chakra_overlay --org com.graphicpoint
-      - name: Android SDK 35
+      - run: flutter create . --platforms=android --project-name vastu_plot_chakra_pdf --org com.graphicpoint
+      - name: Set compile SDK 35
         run: |
           sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g; s/compileSdk flutter.compileSdkVersion/compileSdk 35/g' android/app/build.gradle || true
       - run: flutter pub get
@@ -21,5 +21,5 @@ jobs:
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
-          name: vastu-plot-chakra-apk
+          name: vastu-plot-chakra-pdf-apk
           path: build/app/outputs/flutter-apk/app-release.apk

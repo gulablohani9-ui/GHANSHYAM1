@@ -113,7 +113,9 @@ class _HomePageState extends State<HomePage> {
       chakras
         ..clear()
         ..addAll(found);
-      while (transforms.length < chakras.length) transforms.add(ChakraTransform(angle: plotDegree));
+      while (transforms.length < chakras.length) {
+        transforms.add(ChakraTransform(angle: plotDegree));
+      }
       if (transforms.length > chakras.length) transforms.removeRange(chakras.length, transforms.length);
     });
     msg('${found.length} Chakra image मिलीं।');
@@ -124,7 +126,9 @@ class _HomePageState extends State<HomePage> {
     if (n == null) return;
     setState(() {
       plotDegree = normalize(n);
-      for (final ChakraTransform t in transforms) t.angle = plotDegree;
+      for (final ChakraTransform t in transforms) {
+        t.angle = plotDegree;
+      }
     });
   }
 
@@ -345,7 +349,9 @@ class BoundaryPainter extends CustomPainter {
     if (points.length < 2) return;
     final Paint paint = Paint()..color = Colors.green..strokeWidth = 3..style = PaintingStyle.stroke;
     final Path p = Path()..moveTo(points.first.position.dx, points.first.position.dy);
-    for (final BoundaryPoint point in points.skip(1)) p.lineTo(point.position.dx, point.position.dy);
+    for (final BoundaryPoint point in points.skip(1)) {
+      p.lineTo(point.position.dx, point.position.dy);
+    }
     if (points.length > 2) p.close();
     canvas.drawPath(p, paint);
   }

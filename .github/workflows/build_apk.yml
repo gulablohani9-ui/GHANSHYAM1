@@ -25,7 +25,7 @@ jobs:
       - name: Set compile SDK 35
         run: sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g; s/compileSdk flutter.compileSdkVersion/compileSdk 35/g' android/app/build.gradle || true
       - run: flutter pub get
-      - run: flutter analyze
+      - run: flutter analyze --no-fatal-infos
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:

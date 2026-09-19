@@ -1,15 +1,9 @@
-# Vastu Plot + Chakra Professional V5
+# Vastu Plot + Chakra Professional V7
 
-Mobile workflow is separated into 5 persistent windows/tabs:
+5-step mobile workflow: Customer → Plot → Settings → Chakras → PDF Preview.
 
-1. **Customer** — name, address, mobile
-2. **Plot** — select plot photo, add/edit/move/delete boundary dots, clear all, recenter chakra to polygon center
-3. **Settings** — plot/north degree and CHKRA folder selection/refresh
-4. **Chakras** — every CHKRA image on top of the plot; per-chakra move, pinch zoom, two-finger rotate, exact degree, size, opacity, reset
-5. **PDF Preview** — page 1 client/plot and one page per chakra, with final composition preview before generating PDF
+## Plot marking
+After selecting a plot photo, the app automatically enters **ADD** mode. Tap directly on the photo to place boundary dots. Use EDIT/MOVE to move existing dots and DELETE to remove a dot. The photo remains visible with a clear marking toolbar and hint.
 
-Boundary editing is explicit: **ADD**, **EDIT / MOVE**, and **DELETE** modes. Editing a dot does not add another dot.
-
-The PDF composition uses the same normalized plot-image coordinate system as the mobile Chakra view, including center, scale, rotation and opacity.
-
-Footer: **Ghanshyam Lohani**.
+## Chakra
+Each chakra is overlaid on the plot. Move, pinch-zoom, rotate, adjust opacity and degree. The polygon center is used for initial placement.

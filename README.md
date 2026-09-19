@@ -1,25 +1,17 @@
-# Vastu Plot + Chakra Professional
+# Vastu Plot + Chakra — Professional V2
 
-Professional Flutter app for plot-photo boundary editing and Chakra overlays.
+This version fixes the PDF/app mismatch by rendering each PDF Chakra page from the same normalized plot-image composition used by the mobile preview.
 
-## Features
-- Client name, address and mobile
-- Plot photo from gallery
-- Unlimited boundary dots
-- Add dots by tapping blank area
-- Select, drag/update and delete individual dots
-- Clear all dots
-- Plot/North degree input
-- CHKRA folder selection using Android Storage Access Framework
-- PNG/JPG/JPEG/WebP scanning, including nested folders
-- Multiple Chakra images
-- Chakra overlay directly on the plot
-- Finger move, pinch zoom and two-finger rotation
-- Rotation slider and +/- 1 degree controls
-- Size slider
-- Reset position/size/rotation
-- PDF: 1 client/plot page + one overlaid Chakra page per Chakra
-- GitHub Actions release APK build
+## Important fixes
+- Chakra size, position, rotation and opacity are stored in normalized plot-image coordinates.
+- PDF uses the same transform values as the mobile preview; no fixed 360px Chakra size.
+- Chakra starts at the geometric centroid of the user-drawn polygon when the Chakra is loaded.
+- Plot boundary points are normalized to the plot image.
+- Boundary editing has separate **Add Dot**, **Move / Edit**, and **Delete Dot** modes, so touching an existing dot does not create another dot.
+- Pinch zoom, two-finger rotation and one-finger movement are supported for Chakra.
+- PDF pages are flattened from a rendered composition so the PDF matches the preview much more closely.
+- Chakra opacity control is included.
+- CHKRA folder is read through Android Storage Access Framework.
 
 ## Build
-Push to GitHub, open Actions, run **Build Android APK**, then download the artifact `vastu-plot-chakra-pdf-apk`.
+Use GitHub Actions: **Actions → Build Android APK → Run workflow**.

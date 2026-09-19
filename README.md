@@ -1,34 +1,25 @@
-# Vastu Plot + Chakra PDF App
+# Vastu Plot + Chakra Professional
 
-This version fixes Android CHKRA folder reading by using Android's Storage Access Framework (SAF) directly.
+Professional Flutter app for plot-photo boundary editing and Chakra overlays.
 
-## Main features
+## Features
+- Client name, address and mobile
+- Plot photo from gallery
+- Unlimited boundary dots
+- Add dots by tapping blank area
+- Select, drag/update and delete individual dots
+- Clear all dots
+- Plot/North degree input
+- CHKRA folder selection using Android Storage Access Framework
+- PNG/JPG/JPEG/WebP scanning, including nested folders
+- Multiple Chakra images
+- Chakra overlay directly on the plot
+- Finger move, pinch zoom and two-finger rotation
+- Rotation slider and +/- 1 degree controls
+- Size slider
+- Reset position/size/rotation
+- PDF: 1 client/plot page + one overlaid Chakra page per Chakra
+- GitHub Actions release APK build
 
-- Plot photo selection
-- Unlimited draggable boundary points
-- Plot/North degree
-- **Real Android folder selection for CHKRA**
-- Reads PNG/JPG/JPEG/WebP images from the selected CHKRA folder, including images inside subfolders
-- Keeps access to the selected folder for Refresh after the first selection
-- Shows the detected Chakra filenames in the app
-- Chakra overlays directly on top of the plot photo
-- Finger move, pinch zoom and rotate
-- Slider and +/- degree controls
-- Plot degree automatically sets the Chakra rotation when the degree is changed
-- PDF: 1 client/plot page + one overlaid plot page per Chakra
-- Footer: Ghanshyam Lohani
-
-## Important CHKRA workflow
-
-1. Create a folder named **CHKRA** in phone storage.
-2. Put PNG/JPG/JPEG/WebP Chakra images inside it.
-3. In the app tap **CHKRA Folder Select करें**.
-4. Select the actual **CHKRA** folder and press **Use this folder** if Android shows that button.
-5. The app reads the images through Android's folder permission. It does not depend on `dart:io Directory.list()` for the selected Android folder.
-6. After adding more images to CHKRA, press **Refresh CHKRA Folder**.
-
-## GitHub build
-
-Push this project to GitHub and run **Actions → Build Android APK**. The workflow creates the Android project, installs the native CHKRA reader, runs `flutter analyze`, and builds the release APK.
-
-The generated stale `test/widget_test.dart` is removed before analysis.
+## Build
+Push to GitHub, open Actions, run **Build Android APK**, then download the artifact `vastu-plot-chakra-pdf-apk`.

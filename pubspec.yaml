@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  file_picker: ^8.1.2
   image_picker: ^1.1.2
   path: ^1.9.0
   pdf: ^3.11.1

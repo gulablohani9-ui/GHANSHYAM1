@@ -309,32 +309,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Offset _polygonCenter() {
-    if (points.isEmpty) return const Offset(.5, .5);
-    if (points.length < 3) {
-      double x = 0;
-      double y = 0;
-      for (final BoundaryPoint p in points) {
-        x += p.position.dx;
-        y += p.position.dy;
-      }
-      return Offset(x / points.length, y / points.length);
-    }
-    double area2 = 0;
-    double cx = 0;
-    double cy = 0;
-    for (int i = 0; i < points.length; i++) {
-      final Offset a = points[i].position;
-      final Offset b = points[(i + 1) % points.length].position;
-      final double cross = a.dx * b.dy - b.dx * a.dy;
-      area2 += cross;
-      cx += (a.dx + b.dx) * cross;
-      cy += (a.dy + b.dy) * cross;
-    }
-    if (area2.abs() < 1e-9) return const Offset(.5, .5);
-    return Offset(cx / (3 * area2), cy / (3 * area2));
-  }
-
   Future<Uint8List> _renderPdfComposition({
     required Uint8List plotBytes,
     required Uint8List chakraBytes,
@@ -345,7 +319,7 @@ class _HomePageState extends State<HomePage> {
     final ui.Image chakraImage = await _decodeUiImage(chakraBytes);
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-    canvas.drawColor(Colors.white);
+    canvas.drawColor(Colors.white, BlendMode.srcOver);
 
     final Rect plotRect = _containRect(
       Size(plotImage.width.toDouble(), plotImage.height.toDouble()),

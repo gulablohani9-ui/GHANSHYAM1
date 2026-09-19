@@ -721,19 +721,93 @@ class _ChakraWorkspaceState extends State<ChakraWorkspace> {
   Widget build(BuildContext context) {
     _ensureStarts();
     final ChakraTransform t = widget.transforms[page];
-    return Column(children: <Widget>[
-      Expanded(child: PageView.builder(itemCount: widget.chakras.length, onPageChanged: (int i) => setState(() => page = i), itemBuilder: (_, int i) => _composition(i))),
-      Material(elevation: 6, child: SafeArea(top: false, child: Padding(padding: const EdgeInsets.fromLTRB(10, 6, 10, 8), child: Column(children: <Widget>[
-        Row(children: <Widget>[Text('Chakra ${page + 1}/${widget.chakras.length}', style: const TextStyle(fontWeight: FontWeight.bold)), const Spacer(), Text('${t.angle.toStringAsFixed(1)}°')]),
-        Slider(min: 0, max: 360, value: t.angle.clamp(0.0, 360.0).toDouble(), onChanged: (double v) { setState(() => t.angle = v); widget.onChanged(); }),
-        Row(children: <Widget>[const Icon(Icons.zoom_out), Expanded(child: Slider(min: .15, max: 3, value: t.scale.clamp(.15, 3).toDouble(), onChanged: (double v) { setState(() => t.scale = v); widget.onChanged(); })), const Icon(Icons.zoom_in), Text('${(t.scale * 100).round()}%')]),
-        Row(children: <Widget>[const Text('Opacity'), Expanded(child: Slider(min: .05, max: 1, value: t.opacity.clamp(.05, 1).toDouble(), onChanged: (double v) { setState(() => t.opacity = v); widget.onChanged(); })), Text('${(t.opacity * 100).round()}%')]),
-        Row(children: <Widget>[Expanded(child: OutlinedButton(onPressed: () => rotate(-1), child: const Text('-1°'))), const SizedBox(width: 5), Expanded(child: OutlinedButton(onPressed: () => rotate(1), child: const Text('+1°'))), const SizedBox(width: 5), Expanded(child: FilledButton(onPressed: reset, child: const Text('Reset')))]),
-        const Text('1 finger = Move • 2 fingers = Zoom + Rotate • Plot center = blue cross', textAlign: TextAlign.center, style: TextStyle(fontSize: 11)),
-        const SizedBox(height: 5),
-        FilledButton.icon(onPressed: widget.onNext, icon: const Icon(Icons.picture_as_pdf), label: const Text('5 • PDF Preview')),
-      ]))),
-    ]);
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: PageView.builder(
+            itemCount: widget.chakras.length,
+            onPageChanged: (int i) => setState(() => page = i),
+            itemBuilder: (BuildContext context, int i) => _composition(i),
+          ),
+        ),
+        Material(
+          elevation: 6,
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Text('Chakra ${page + 1}/${widget.chakras.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const Spacer(),
+                      Text('${t.angle.toStringAsFixed(1)}°'),
+                    ],
+                  ),
+                  Slider(
+                    min: 0,
+                    max: 360,
+                    value: t.angle.clamp(0.0, 360.0).toDouble(),
+                    onChanged: (double v) {
+                      setState(() => t.angle = v);
+                      widget.onChanged();
+                    },
+                  ),
+                  Row(
+                    children: <Widget>[
+                      const Icon(Icons.zoom_out),
+                      Expanded(
+                        child: Slider(
+                          min: .15,
+                          max: 3,
+                          value: t.scale.clamp(.15, 3).toDouble(),
+                          onChanged: (double v) {
+                            setState(() => t.scale = v);
+                            widget.onChanged();
+                          },
+                        ),
+                      ),
+                      const Icon(Icons.zoom_in),
+                      Text('${(t.scale * 100).round()}%'),
+                    ],
+                  ),
+                  Row(
+                    children: <Widget>[
+                      const Text('Opacity'),
+                      Expanded(
+                        child: Slider(
+                          min: .05,
+                          max: 1,
+                          value: t.opacity.clamp(.05, 1).toDouble(),
+                          onChanged: (double v) {
+                            setState(() => t.opacity = v);
+                            widget.onChanged();
+                          },
+                        ),
+                      ),
+                      Text('${(t.opacity * 100).round()}%'),
+                    ],
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(child: OutlinedButton(onPressed: () => rotate(-1), child: const Text('-1°'))),
+                      const SizedBox(width: 5),
+                      Expanded(child: OutlinedButton(onPressed: () => rotate(1), child: const Text('+1°'))),
+                      const SizedBox(width: 5),
+                      Expanded(child: FilledButton(onPressed: reset, child: const Text('Reset'))),
+                    ],
+                  ),
+                  const Text('1 finger = Move • 2 fingers = Zoom + Rotate • Plot center = blue cross', textAlign: TextAlign.center, style: TextStyle(fontSize: 11)),
+                  const SizedBox(height: 5),
+                  FilledButton.icon(onPressed: widget.onNext, icon: const Icon(Icons.picture_as_pdf), label: const Text('5 • PDF Preview')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Rect contain(Size imageSize, Size boxSize) {
@@ -845,7 +919,7 @@ class _PdfPreviewWorkspaceState extends State<PdfPreviewWorkspace> {
     Image.file(widget.plot, fit: BoxFit.contain, height: 500),
     const SizedBox(height: 8),
     const Align(alignment: Alignment.centerRight, child: Text('Ghanshyam Lohani', style: TextStyle(fontWeight: FontWeight.bold))),
-  ];
+  ]);
   Widget _chakra(int index) => LayoutBuilder(builder: (BuildContext context, BoxConstraints box) {
     final ChakraTransform t = widget.transforms[index];
     final Size viewport = Size(box.maxWidth, math.max(220, box.maxHeight));

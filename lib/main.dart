@@ -69,6 +69,7 @@ class _HomePageState extends State<HomePage> {
   File? plot;
   String? folderName;
   bool deleteMode = false;
+  int selectedPoint = -1;
   bool loadingChakras = false;
   double plotDegree = 0;
 
@@ -102,6 +103,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       plot = File(x.path);
       points.clear();
+      selectedPoint = -1;
     });
   }
 
@@ -211,6 +213,29 @@ class _HomePageState extends State<HomePage> {
     if (transforms.length > chakras.length) {
       transforms.removeRange(chakras.length, transforms.length);
     }
+  }
+
+  void deleteSelectedPoint() {
+    if (selectedPoint < 0 || selectedPoint >= points.length) {
+      msg('पहले कोई dot select करें।');
+      return;
+    }
+    setState(() {
+      points.removeAt(selectedPoint);
+      if (points.isEmpty) {
+        selectedPoint = -1;
+      } else if (selectedPoint >= points.length) {
+        selectedPoint = points.length - 1;
+      }
+    });
+  }
+
+  void clearPoints() {
+    if (points.isEmpty) return;
+    setState(() {
+      points.clear();
+      selectedPoint = -1;
+    });
   }
 
   void setDegree(String value) {
@@ -424,22 +449,46 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 12),
             title('3. Plot Boundary'),
             const Text(
-              'जितने चाहें red dots लगाएँ। Dot को drag करें। Delete mode में dot पर long-press करें।',
+              'Blank area पर tap = नया dot. Dot को finger से drag करके position बदलें। Dot पर tap करके select करें और नीचे से delete करें।',
             ),
             const SizedBox(height: 8),
             Row(
               children: <Widget>[
                 Expanded(
-                  child: FilledButton.tonal(
+                  child: FilledButton.tonalIcon(
                     onPressed: () => setState(() => deleteMode = false),
-                    child: const Text('Add / Move'),
+                    icon: const Icon(Icons.edit_location_alt),
+                    label: const Text('Add / Move'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => setState(() => deleteMode = true),
-                    child: const Text('Delete'),
+                  child: OutlinedButton.icon(
+                    onPressed: deleteSelectedPoint,
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Delete Selected'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: points.isEmpty ? null : clearPoints,
+                    icon: const Icon(Icons.clear_all),
+                    label: const Text('Clear All Dots'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    selectedPoint >= 0
+                        ? 'Selected Dot: ${selectedPoint + 1}'
+                        : 'No dot selected',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -460,6 +509,8 @@ class _HomePageState extends State<HomePage> {
                 image: plot!,
                 points: points,
                 deleteMode: deleteMode,
+                selectedIndex: selectedPoint,
+                onSelect: (int index) => setState(() => selectedPoint = index),
                 onChanged: () => setState(() {}),
               ),
             const SizedBox(height: 14),
@@ -539,12 +590,16 @@ class PlotEditor extends StatelessWidget {
     required this.image,
     required this.points,
     required this.deleteMode,
+    required this.selectedIndex,
+    required this.onSelect,
     required this.onChanged,
   });
 
   final File image;
   final List<BoundaryPoint> points;
   final bool deleteMode;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
   final VoidCallback onChanged;
 
   @override
@@ -552,64 +607,99 @@ class PlotEditor extends StatelessWidget {
         builder: (BuildContext context, BoxConstraints box) {
           final double width = box.maxWidth;
           final double height = width * .72;
-          return GestureDetector(
-            onTapDown: (TapDownDetails d) {
-              if (!deleteMode) {
-                points.add(BoundaryPoint(d.localPosition));
-                onChanged();
-              }
-            },
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: Stack(
-                children: <Widget>[
-                  Positioned.fill(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(image, fit: BoxFit.fill),
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline,
+                width: 1.2,
+              ),
+            ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (TapDownDetails d) {
+                if (!deleteMode) {
+                  points.add(BoundaryPoint(d.localPosition));
+                  onSelect(points.length - 1);
+                  onChanged();
+                }
+              },
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: Stack(
+                  clipBehavior: Clip.hardEdge,
+                  children: <Widget>[
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(13),
+                        child: Image.file(image, fit: BoxFit.fill),
+                      ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: CustomPaint(painter: BoundaryPainter(points)),
-                  ),
-                  for (int i = 0; i < points.length; i++)
-                    Positioned(
-                      left: points[i].position.dx - 14,
-                      top: points[i].position.dy - 14,
-                      child: GestureDetector(
-                        onPanUpdate: (DragUpdateDetails d) {
-                          if (!deleteMode) {
-                            points[i].position += d.delta;
-                            onChanged();
-                          }
-                        },
-                        onLongPress: () {
-                          if (deleteMode) {
-                            points.removeAt(i);
-                            onChanged();
-                          }
-                        },
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${i + 1}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                    Positioned.fill(
+                      child: CustomPaint(painter: BoundaryPainter(points)),
+                    ),
+                    for (int i = 0; i < points.length; i++)
+                      Positioned(
+                        left: points[i].position.dx - 16,
+                        top: points[i].position.dy - 16,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => onSelect(i),
+                          onPanStart: (_) => onSelect(i),
+                          onPanUpdate: (DragUpdateDetails d) {
+                            if (!deleteMode) {
+                              points[i].position += d.delta;
+                              onSelect(i);
+                              onChanged();
+                            }
+                          },
+                          onLongPress: () {
+                            if (deleteMode) {
+                              points.removeAt(i);
+                              if (points.isEmpty) {
+                                onSelect(-1);
+                              } else {
+                                onSelect((i - 1).clamp(0, points.length - 1));
+                              }
+                              onChanged();
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 120),
+                            width: 32,
+                            height: 32,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: selectedIndex == i
+                                  ? Colors.orange
+                                  : Colors.red,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: selectedIndex == i ? 3 : 2,
+                              ),
+                              boxShadow: const <BoxShadow>[
+                                BoxShadow(
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                  color: Colors.black26,
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              '${i + 1}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -744,6 +834,21 @@ class _ChakraViewerState extends State<ChakraViewer> {
                     ),
                     Row(
                       children: <Widget>[
+                        const Icon(Icons.zoom_out),
+                        Expanded(
+                          child: Slider(
+                            min: .25,
+                            max: 2.5,
+                            value: t.scale.clamp(.25, 2.5).toDouble(),
+                            onChanged: (double v) => setState(() => t.scale = v),
+                          ),
+                        ),
+                        const Icon(Icons.zoom_in),
+                        Text('${(t.scale * 100).round()}%'),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => rotate(-1),
@@ -761,7 +866,7 @@ class _ChakraViewerState extends State<ChakraViewer> {
                         Expanded(
                           child: FilledButton(
                             onPressed: reset,
-                            child: const Text('Plot Degree'),
+                            child: const Text('Reset'),
                           ),
                         ),
                       ],

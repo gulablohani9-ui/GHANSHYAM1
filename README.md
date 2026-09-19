@@ -15,3 +15,6 @@ This version fixes the PDF/app mismatch by rendering each PDF Chakra page from t
 
 ## Build
 Use GitHub Actions: **Actions → Build Android APK → Run workflow**.
+
+### Analyzer fix V4
+This version removes the stale `_polygonCenter` helper and fixes the `Canvas.drawColor` call to provide its required `BlendMode` argument. The GitHub workflow runs `flutter analyze --no-fatal-infos`, so informational lints do not block the APK build; real analyzer errors still fail the build.

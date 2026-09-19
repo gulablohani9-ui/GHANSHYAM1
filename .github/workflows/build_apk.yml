@@ -20,6 +20,8 @@ jobs:
       - run: flutter create . --platforms=android --project-name vastu_plot_chakra_pdf --org com.graphicpoint
       - name: Remove generated stale test
         run: rm -f test/widget_test.dart
+      - name: Install Android CHKRA folder reader
+        run: bash scripts/patch_android.sh
       - name: Set compile SDK 35
         run: sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g; s/compileSdk flutter.compileSdkVersion/compileSdk 35/g' android/app/build.gradle || true
       - run: flutter pub get

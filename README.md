@@ -1,20 +1,15 @@
-# Vastu Plot + Chakra — Professional V2
+# Vastu Plot + Chakra Professional V5
 
-This version fixes the PDF/app mismatch by rendering each PDF Chakra page from the same normalized plot-image composition used by the mobile preview.
+Mobile workflow is separated into 5 persistent windows/tabs:
 
-## Important fixes
-- Chakra size, position, rotation and opacity are stored in normalized plot-image coordinates.
-- PDF uses the same transform values as the mobile preview; no fixed 360px Chakra size.
-- Chakra starts at the geometric centroid of the user-drawn polygon when the Chakra is loaded.
-- Plot boundary points are normalized to the plot image.
-- Boundary editing has separate **Add Dot**, **Move / Edit**, and **Delete Dot** modes, so touching an existing dot does not create another dot.
-- Pinch zoom, two-finger rotation and one-finger movement are supported for Chakra.
-- PDF pages are flattened from a rendered composition so the PDF matches the preview much more closely.
-- Chakra opacity control is included.
-- CHKRA folder is read through Android Storage Access Framework.
+1. **Customer** — name, address, mobile
+2. **Plot** — select plot photo, add/edit/move/delete boundary dots, clear all, recenter chakra to polygon center
+3. **Settings** — plot/north degree and CHKRA folder selection/refresh
+4. **Chakras** — every CHKRA image on top of the plot; per-chakra move, pinch zoom, two-finger rotate, exact degree, size, opacity, reset
+5. **PDF Preview** — page 1 client/plot and one page per chakra, with final composition preview before generating PDF
 
-## Build
-Use GitHub Actions: **Actions → Build Android APK → Run workflow**.
+Boundary editing is explicit: **ADD**, **EDIT / MOVE**, and **DELETE** modes. Editing a dot does not add another dot.
 
-### Analyzer fix V4
-This version removes the stale `_polygonCenter` helper and fixes the `Canvas.drawColor` call to provide its required `BlendMode` argument. The GitHub workflow runs `flutter analyze --no-fatal-infos`, so informational lints do not block the APK build; real analyzer errors still fail the build.
+The PDF composition uses the same normalized plot-image coordinate system as the mobile Chakra view, including center, scale, rotation and opacity.
+
+Footer: **Ghanshyam Lohani**.

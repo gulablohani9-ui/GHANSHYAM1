@@ -110,6 +110,7 @@ class _HomePageState extends State<HomePage> {
       plot = File(x.path);
       points.clear();
       selectedPoint = -1;
+      boundaryMode = BoundaryMode.add;
       for (final ChakraTransform t in transforms) {
         t.center = const Offset(.5, .5);
       }
@@ -345,7 +346,7 @@ class _HomePageState extends State<HomePage> {
             Expanded(child: OutlinedButton.icon(onPressed: points.length < 3 ? null : updateCenterFromPlot, icon: const Icon(Icons.center_focus_strong), label: const Text('Re-center Chakras'))),
           ]),
           const SizedBox(height: 8),
-          Text(selectedPoint >= 0 ? 'Selected Dot: ${selectedPoint + 1}' : 'No dot selected', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(selectedPoint >= 0 ? 'Selected Dot: ${selectedPoint + 1}' : 'ADD mode में photo पर tap करके dot लगाएँ', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 18),
           FilledButton.icon(onPressed: () => go(2), icon: const Icon(Icons.arrow_forward), label: const Text('3 • Settings')),
         ],
@@ -548,53 +549,130 @@ class PlotEditor extends StatelessWidget {
   final void Function(int, Offset) onMove;
   final ValueChanged<int> onDelete;
 
-  Offset norm(Offset p, Size s) => Offset((p.dx / s.width).clamp(0.0, 1.0), (p.dy / s.height).clamp(0.0, 1.0));
-  Offset local(Offset p, Size s) => Offset(p.dx * s.width, p.dy * s.height);
+  Offset norm(Offset p, Size s) => Offset(
+        (p.dx / s.width).clamp(0.0, 1.0),
+        (p.dy / s.height).clamp(0.0, 1.0),
+      );
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (BuildContext context, BoxConstraints box) {
-        final double width = box.maxWidth;
-        final double height = width * .72;
-        final Size size = Size(width, height);
-        return Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: Theme.of(context).colorScheme.outline)),
-          child: Stack(children: <Widget>[
-            Positioned.fill(child: ClipRRect(borderRadius: BorderRadius.circular(13), child: Image.file(image, fit: BoxFit.fill))),
-            Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: BoundaryPainter(points)))),
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTapUp: (TapUpDetails d) {
-                  if (mode == BoundaryMode.add) onAdd(norm(d.localPosition, size));
-                },
-              ),
-            ),
-            for (int i = 0; i < points.length; i++)
-              Positioned(
-                left: points[i].position.dx * width - 18,
-                top: points[i].position.dy * height - 18,
-                width: 36,
-                height: 36,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    onSelect(i);
-                    if (mode == BoundaryMode.delete) onDelete(i);
-                  },
-                  onPanStart: (_) => onSelect(i),
-                  onPanUpdate: (DragUpdateDetails d) {
-                    if (mode == BoundaryMode.move) onMove(i, norm(local(points[i].position, size) + d.delta, size));
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: selectedIndex == i ? Colors.orange : Colors.red, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2.5), boxShadow: const <BoxShadow>[BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black26)]),
-                    child: Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                  ),
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints box) {
+          final double width = box.maxWidth.isFinite ? box.maxWidth : 360;
+          final double height = math.max(360, width * .78);
+          final Size size = Size(width, height);
+          return Column(
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                decoration: BoxDecoration(
+                  color: mode == BoundaryMode.add
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Icon(mode == BoundaryMode.add
+                        ? Icons.touch_app
+                        : mode == BoundaryMode.move
+                            ? Icons.open_with
+                            : Icons.delete_outline),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        mode == BoundaryMode.add
+                            ? 'PHOTO पर tap करें — यहीं नया dot लगेगा'
+                            : mode == BoundaryMode.move
+                                ? 'Dot को finger से पकड़कर move करें'
+                                : 'जिस dot को हटाना है उसे tap करें',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    Text('${points.length} dots'),
+                  ],
                 ),
               ),
-          ]),
-        );
-      });
+              Container(
+                height: height,
+                width: width,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1.5),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    Image.file(image, fit: BoxFit.contain, alignment: Alignment.center),
+                    IgnorePointer(child: CustomPaint(painter: BoundaryPainter(points))),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTapUp: (TapUpDetails d) {
+                        if (mode == BoundaryMode.add) {
+                          onAdd(norm(d.localPosition, size));
+                        }
+                      },
+                    ),
+                    for (int i = 0; i < points.length; i++)
+                      Positioned(
+                        left: points[i].position.dx * width - 19,
+                        top: points[i].position.dy * height - 19,
+                        width: 38,
+                        height: 38,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            onSelect(i);
+                            if (mode == BoundaryMode.delete) onDelete(i);
+                          },
+                          onPanStart: (_) => onSelect(i),
+                          onPanUpdate: (DragUpdateDetails d) {
+                            if (mode == BoundaryMode.move) {
+                              final Offset old = points[i].position;
+                              onMove(i, norm(Offset(old.dx * width + d.delta.dx, old.dy * height + d.delta.dy), size));
+                            }
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: selectedIndex == i ? Colors.orange : Colors.red,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2.5),
+                              boxShadow: const <BoxShadow>[
+                                BoxShadow(blurRadius: 4, offset: Offset(0, 2), color: Colors.black26),
+                              ],
+                            ),
+                            child: Text(
+                              '${i + 1}',
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (points.isEmpty)
+                      Center(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(.62),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            child: Text(
+                              'यहाँ tap करके Plot की boundary शुरू करें',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      );
 }
 
 class BoundaryPainter extends CustomPainter {
